@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>bass map</title>
+<style>
+#controls {
+    position: absolute;
+    top: 100px;       /* 위에서 20px */
+    left: 50px;      /* 왼쪽에서 20px */
+    z-index: 1000;   /* 지도보다 위에 표시 */
+    background: white;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+#controls button {
+    display: block;
+    margin-bottom: 5px;
+    width: 120px;
+}
+</style>
+<script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=w3o500vq8f"></script>
+</head>
+<body>
+
+<div id="controls">
+    <button onclick="showAll()">전체보기</button>
+    <button onclick="filterType('소류지')">소류지</button>
+    <button onclick="filterType('수로')">수로</button>
+    <button onclick="filterType('저수지')">저수지</button>
+</div>
+<div id="map" style="width:100%;height:800px;"></div>
+
+<script>
+
+const map = new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(36.6,126.8),
+    zoom: 8
+});
+
+let allMarkers = [];
+let pointData = [];
+
+fetch("./points.json")
+.then(res => res.json())
+.then(data => {
+
+    pointData = data;
+
+    drawMarkers(pointData);
+
+});
+
+function drawMarkers(points){
+
+    allMarkers.forEach(m=>m.setMap(null));
+    allMarkers = [];
+
+    points.forEach(point=>{
+
+        const marker = new naver.maps.Marker({
+            position:new naver.maps.LatLng(point.lat, point.lng),
+            map:map,
+            title:point.name
+        });
+
+        const infoWindow = new naver.maps.InfoWindow({
+            content:`
+            <div style="padding:10px;min-width:180px;">
+                <b>${point.name}</b><br>
+                지역 : ${point.region}<br>
+                주소 : ${point.address}<br>
+                유형 : ${point.type}<br>
+                채비 : ${point.rig}
+            </div>`
+        });
+
+        naver.maps.Event.addListener(marker, 'click', function () {
+
+    if (infoWindow.getMap()) {
+        infoWindow.close();
+    } else {
+        infoWindow.open(map, marker);
+    }
+
+        });
+
+        allMarkers.push(marker);
+
+    });
+
+}
+
+function showAll(){
+
+    drawMarkers(pointData);
+
+}
+
+function filterType(type){
+
+    const filtered = pointData.filter(
+        p=>p.type===type
+    );
+
+    drawMarkers(filtered);
+
+}
+
+
+</script>
+
+</body>
+</html>
