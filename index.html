@@ -104,11 +104,27 @@ function drawMarkers(points){
     points.forEach(point=>{
 
         const marker = new naver.maps.Marker({
-            position:new naver.maps.LatLng(point.lat, point.lng),
-            map:map,
-            title:point.name
-        });
 
+    position: new naver.maps.LatLng(
+        point.lat,
+        point.lng
+    ),
+
+    map: map,
+
+    icon: {
+
+        url: './marker-red.png',
+
+        size: new naver.maps.Size(42, 42),
+
+        scaledSize: new naver.maps.Size(42, 42),
+
+        anchor: new naver.maps.Point(21, 42)
+
+    }
+
+});
         const infoWindow = new naver.maps.InfoWindow({
             content:`
             <div style="padding:10px;min-width:180px;">
