@@ -26,10 +26,19 @@
 <body>
 
 <div id="controls">
-    <button onclick="showAll()">전체보기</button>
-    <button onclick="filterType('소류지')">소류지</button>
-    <button onclick="filterType('수로')">수로</button>
-    <button onclick="filterType('저수지')">저수지</button>
+   <button onclick="showAll()">전체</button>
+
+<button onclick="filterDistance(10)">
+    10KM
+</button>
+
+<button onclick="filterDistance(50)">
+    50KM
+</button>
+
+<button onclick="filterDistance(100)">
+    100KM
+</button>
 </div>
 <div id="map" style="width:100%;height:100vh;"></div>
 
@@ -95,7 +104,58 @@ fetch("./points.json")
     drawMarkers(pointData);
 
 });
+function getDistance(lat1, lng1, lat2, lng2){
 
+    const R = 6371;
+
+    const dLat =
+        (lat2-lat1) * Math.PI/180;
+
+    const dLng =
+        (lng2-lng1) * Math.PI/180;
+
+    const a =
+        Math.sin(dLat/2) *
+        Math.sin(dLat/2)
+
+        +
+
+        Math.cos(lat1*Math.PI/180) *
+        Math.cos(lat2*Math.PI/180) *
+
+        Math.sin(dLng/2) *
+        Math.sin(dLng/2);
+
+    const c =
+        2 * Math.atan2(
+            Math.sqrt(a),
+            Math.sqrt(1-a)
+        );
+
+    return R * c;
+}
+function filterDistance(km){
+
+    const filtered =
+        pointData.filter(point=>{
+
+            const distance =
+                getDistance(
+
+                    myPosition.lat,
+                    myPosition.lng,
+
+                    point.lat,
+                    point.lng
+                );
+
+            return distance <= km;
+
+        });
+
+    drawMarkers(filtered);
+
+}
 function drawMarkers(points){
 
     allMarkers.forEach(m=>m.setMap(null));
