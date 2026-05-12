@@ -127,6 +127,7 @@ fetch("./points.json")
     drawMarkers(pointData);
 
 });
+
 function getDistance(lat1, lng1, lat2, lng2){
 
     const R = 6371;
@@ -206,18 +207,43 @@ function drawMarkers(points){
         anchor: new naver.maps.Point(21, 42)
 
     }
-
 });
-        const infoWindow = new naver.maps.InfoWindow({
-            content:`
-            <div style="padding:10px;min-width:180px;">
-                <b>${point.name}</b><br>
-                지역 : ${point.region}<br>
-                주소 : ${point.address}<br>
-                유형 : ${point.type}<br>
-                채비 : ${point.rig}
-            </div>`
-        });
+        const naviUrl =
+`nmap://route/public?dlat=${point.lat}&dlng=${point.lng}&dname=${point.name}&appname=anyoneplus.github.io`;
+
+const infoWindow = new naver.maps.InfoWindow({
+
+    content: `
+        <div style="
+            padding:12px;
+            min-width:220px;
+            font-size:14px;
+            line-height:1.6;
+        ">
+
+            <b>${point.name}</b><br>
+
+            지역 : ${point.region}<br>
+            주소 : ${point.address}<br>
+            유형 : ${point.type}<br>
+            채비 : ${point.rig}<br><br>
+
+            <a href="${naviUrl}"
+               style="
+                    display:inline-block;
+                    background:#03c75a;
+                    color:white;
+                    text-decoration:none;
+                    padding:8px 14px;
+                    border-radius:6px;
+                    font-weight:bold;
+               ">
+               길안내
+            </a>
+
+        </div>
+    `
+});
 
         naver.maps.Event.addListener(marker, 'click', function () {
 
