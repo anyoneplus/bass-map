@@ -109,14 +109,23 @@ navigator.geolocation.getCurrentPosition(function(position){
     });
 
 });
-
-const map = new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(36.6,126.8),
-    zoom: 8
-});
-
 let allMarkers = [];
 let pointData = [];
+let openedInfoWindow = null;
+
+const map = new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(36.6, 126.8),
+    zoom: 8
+});
+naver.maps.Event.addListener(map, 'click', function(e){
+
+    if(openedInfoWindow){
+        openedInfoWindow.close();
+        openedInfoWindow = null;
+    }
+
+});
+
 
 fetch("./points.json")
 .then(res => res.json())
@@ -245,25 +254,26 @@ const infoWindow = new naver.maps.InfoWindow({
     `
 });
 
-        naver.maps.Event.addListener(marker, 'click', function () {
+naver.maps.Event.addListener(marker, 'click', function () {
 
-    if (infoWindow.getMap()) {
+    if (openedInfoWindow === infoWindow) {
         infoWindow.close();
-    } else {
-        infoWindow.open(map, marker);
+        openedInfoWindow = null;
+        return;
     }
 
-        });
+    if (openedInfoWindow) {
+        openedInfoWindow.close();
+    }
 
-        allMarkers.push(marker);
+    infoWindow.open(map, marker);
+    openedInfoWindow = infoWindow;
+
+});
+
+allMarkers.push(marker);
 
     });
-
-}
-
-function showAll(){
-
-    drawMarkers(pointData);
 
 }
 
