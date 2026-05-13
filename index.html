@@ -64,8 +64,27 @@
 </button>
 </div>
 <div id="map" style="width:100%;height:100vh;"></div>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDEhdafdjVpXa7LtKumAI4cznxu-IucBPk",
+    authDomain: "bass-map-64f42.firebaseapp.com",
+    projectId: "bass-map-64f42",
+    storageBucket: "bass-map-64f42.firebasestorage.app",
+    messagingSenderId: "196495924192",
+    appId: "1:196495924192:web:f803d932b7bd34e274a985"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 <script>
+    
 let myPosition = null;
 
 navigator.geolocation.getCurrentPosition(function(position){
