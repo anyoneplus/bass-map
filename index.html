@@ -218,7 +218,7 @@ function drawMarkers(points){
     }
 });
         const naviUrl =
-`nmap://route/public?dlat=${point.lat}&dlng=${point.lng}&dname=${point.name}&appname=anyoneplus.github.io`;
+`nmap://route/car?dlat=${point.lat}&dlng=${point.lng}&dname=${encodeURIComponent(point.name)}&appname=anyoneplus.github.io`;
 
 const infoWindow = new naver.maps.InfoWindow({
 
