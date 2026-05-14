@@ -23,8 +23,45 @@
     box-shadow: 0 3px 10px rgba(0,0,0,0.3);
 
 }
+#save {
 
+    position: absolute;
+
+    top: 100px;
+
+    left: 1250px;
+
+    z-index: 1000;
+
+    background: white;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+
+}
 #controls button {
+
+    display: block;
+
+    width: 150px;
+
+    height: 100px;
+
+    margin-bottom: 8px;
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+}
+#save button {
 
     display: block;
 
@@ -64,13 +101,22 @@
 </button>
 </div>
 <div id="map" style="width:100%;height:100vh;"></div>
+<div id="save">
+   <button onclick="savemypoint()">현위치 등록</button>
+   <button onclick="savemypoint()">지도에서<br>등록</button>
+</div>
+<div id="map" style="width:100%;height:100vh;"></div>
 <script type="module">
-  // Import the functions you need from the SDKs you need
+ 
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  import {
+    getFirestore,
+    collection,
+    addDoc
+}
+from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
+
   const firebaseConfig = {
     apiKey: "AIzaSyDEhdafdjVpXa7LtKumAI4cznxu-IucBPk",
     authDomain: "bass-map-64f42.firebaseapp.com",
@@ -81,7 +127,54 @@
   };
 
   // Initialize Firebase
+
+  async function saveMyPoint(){
+
+    const name =
+        prompt("포인트 이름을 입력하세요");
+
+    if(!name) return;
+
+
+    const point = {
+
+        name: name,
+
+        lat: myPosition.lat,
+        lng: myPosition.lng,
+
+        region: "사용자등록",
+        address: "GPS 위치",
+
+        type: "사용자포인트",
+
+        rig: "",
+
+        createdAt: new Date()
+
+    };
+
+
+    await addDoc(
+        collection(db, "points"),
+        point
+    );
+
+
+    alert("등록 완료");
+
+
+    pointData.push(point);
+
+    drawMarkers(pointData);
+
+}
   const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+window.db = db;
+window.collection = collection;
+window.addDoc = addDoc;
 </script>
 <script>
     
