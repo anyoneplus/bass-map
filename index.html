@@ -179,9 +179,16 @@ from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
   const db = getFirestore(app);
 
 window.db = db;
+
 window.collection = collection;
 window.addDoc = addDoc;
 window.getDocs = getDocs;
+
+window.updateDoc = updateDoc;
+window.deleteDoc = deleteDoc;
+window.doc = doc;
+window.increment = increment;
+
 window.saveMyPoint = saveMyPoint;
 window.ratePoint = ratePoint;
 window.deletePoint = deletePoint;
@@ -484,7 +491,11 @@ function filterType(type){
     drawMarkers(filtered);
 
 }
+function showAll(){
 
+    drawMarkers(pointData);
+
+}
 
 </script>
 
