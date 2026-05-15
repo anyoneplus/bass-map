@@ -162,7 +162,7 @@ from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 
     await addDoc(
-        collection(db, "points"),
+        collection(window.db, "points"),
         point
     );
 
@@ -190,8 +190,7 @@ window.doc = doc;
 window.increment = increment;
 
 window.saveMyPoint = saveMyPoint;
-window.ratePoint = ratePoint;
-window.deletePoint = deletePoint;
+loadPoints();
 </script>
 <script>
     
@@ -256,66 +255,75 @@ naver.maps.Event.addListener(map, 'click', function(e){
 });
 
 
-loadPoints();
+
 
 async function loadPoints(){
 
-    // 기존 json
-    const res =
-        await fetch("./points.json");
+    console.log("Firebase 읽기 시작");
 
-    const localPoints =
-        await res.json();
-
-
-    // firebase
     const snapshot =
-        await getDocs(
-            collection(db, "points")
+        await window.getDocs(
+            window.collection(
+                window.db,
+                "points"
+            )
         );
 
+    pointData = [];
 
-    const userPoints = [];
+    snapshot.forEach(doc=>{
 
+        pointData.push({
 
-    snapshot.forEach(docSnap=>{
+            id: doc.id,
 
-    userPoints.push({
+            ...doc.data()
 
-        id: docSnap.id,
-
-        ...docSnap.data()
-
-    });
-
+        });
 
     });
 
-
-    pointData = [
-
-        ...localPoints,
-
-        ...userPoints
-
-    ];
-
+    console.log("Firebase 데이터:", pointData);
+    console.log("마커 개수:", pointData.length);
 
     drawMarkers(pointData);
 
 }
-async function ratePoint(docId, score){
 
-    const ref = doc(window.db, "points", docId);
 
-    await updateDoc(ref, {
 
-        rating: increment(score),
-        ratingCount: increment(1)
+async function ratePoint(docId){
+
+    const point =
+        pointData.find(
+            p => p.id === docId
+        );
+
+    if(!point) return;
+
+    if(point.rating === 1){
+
+        alert("이미 조과 기록된 포인트입니다");
+        return;
+
+    }
+
+    const ref =
+        window.doc(
+            window.db,
+            "points",
+            docId
+        );
+
+    await window.updateDoc(ref, {
+
+        rating: 1
 
     });
 
-    alert("평가 완료");
+    alert("조과 기록 완료");
+
+    loadPoints();
 
 }
 async function deletePoint(docId){
@@ -332,6 +340,46 @@ async function deletePoint(docId){
 
     location.reload();
 
+}
+async function migrateJsonToFirebase(){
+
+    const res =
+        await fetch("./points.json");
+
+    const jsonData =
+        await res.json();
+
+    for(const point of jsonData){
+
+        await addDoc(
+             window.collection(window.db, "points"),
+            {
+
+                name: point.name,
+
+                lat: point.lat,
+                lng: point.lng,
+
+                region: point.region,
+                address: point.address,
+
+                type: point.type,
+                rig: point.rig,
+
+                rating: 0,
+                ratingCount: 0,
+
+                createdAt: new Date()
+            }
+        );
+
+        console.log(
+            "업로드 완료:",
+            point.name
+        );
+    }
+
+    alert("전체 이전 완료");
 }
 function getDistance(lat1, lng1, lat2, lng2){
 
@@ -386,6 +434,7 @@ function filterDistance(km){
 
 }
 function drawMarkers(points){
+    
 
     allMarkers.forEach(m=>m.setMap(null));
     allMarkers = [];
@@ -395,13 +444,12 @@ function drawMarkers(points){
         const marker = new naver.maps.Marker({
 
     position: new naver.maps.LatLng(
-        point.lat,
-        point.lng
+        Number(point.lat),
+        Number(point.lng)
     ),
 
     map: map,
-
-    icon: {
+ icon: {
 
         url: './marker-red.png',
 
@@ -412,7 +460,11 @@ function drawMarkers(points){
         anchor: new naver.maps.Point(21, 42)
 
     }
+
+
 });
+    
+  
         const naviUrl =
 `nmap://route/car?dlat=${point.lat}&dlng=${point.lng}&dname=${encodeURIComponent(point.name)}&appname=anyoneplus.github.io`;
 
@@ -432,15 +484,57 @@ const infoWindow = new naver.maps.InfoWindow({
             주소 : ${point.address}<br>
             유형 : ${point.type}<br>
             채비 : ${point.rig}<br>
-            평점 :  ${((point.rating || 0)/(point.ratingCount || 1)).toFixed(1)}⭐
+            잡았나요 : ${point.rating ? '⭐잡았긔!!!⭐' : '꽝.......'}
 
-<button onclick="ratePoint('${point.id}',5)">
-★★★★★
+<button onclick="ratePoint('${point.id}')"
+
+    style="
+        background:#ff6b00;
+
+        color:white;
+
+        border:none;
+
+        border-radius:30px;
+
+        padding:12px 24px;
+
+        font-size:22px;
+
+        font-weight:bold;
+
+        cursor:pointer;
+    "
+
+>
+    🎣 HIT !
 </button>
-
 <br><br>
-<button onclick="deletePoint('${point.id}')">
-삭제
+
+<button
+    onclick="deletePoint('${point.id}')"
+    style="
+        position:absolute;
+        top:12px;
+        right:12px;
+
+        width:44px;
+        height:44px;
+
+        border:none;
+        border-radius:50%;
+
+        background:#ff4444;
+        color:white;
+
+        font-size:22px;
+        cursor:pointer;
+
+        box-shadow:0 2px 8px rgba(0,0,0,0.25);
+    "
+>
+🗑
+</button>
 </button>
             <a href="${naviUrl}"
                style="
@@ -496,7 +590,8 @@ function showAll(){
     drawMarkers(pointData);
 
 }
-
+window.ratePoint = ratePoint;
+window.deletePoint = deletePoint;
 </script>
 
 </body>
