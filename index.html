@@ -29,7 +29,7 @@
 
     top: 100px;
 
-    left: 720px;
+    right:50px;
 
     z-index: 1000;
 
@@ -102,10 +102,9 @@
 </div>
 <div id="map" style="width:100%;height:100vh;"></div>
 <div id="save">
-   <button onclick="savemypoint()">현위치 등록</button>
-   <button onclick="savemypoint()">지도에서<br>등록</button>
+   <button onclick="saveMyPoint()">현위치 등록</button>
+   <button onclick="saveMyPoint()">지도에서<br>등록</button>
 </div>
-<div id="map" style="width:100%;height:100vh;"></div>
 <script type="module">
  
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
@@ -175,6 +174,7 @@ from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 window.db = db;
 window.collection = collection;
 window.addDoc = addDoc;
+window.saveMyPoint = saveMyPoint;
 </script>
 <script>
     
