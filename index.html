@@ -112,7 +112,11 @@
     getFirestore,
     collection,
     addDoc,
-    getDocs
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    doc,
+    increment
 }
 from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -149,6 +153,8 @@ from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
         type: "사용자포인트",
 
         rig: "",
+        rating: 0,
+        ratingCount: 0,
 
         createdAt: new Date()
 
@@ -177,6 +183,8 @@ window.collection = collection;
 window.addDoc = addDoc;
 window.getDocs = getDocs;
 window.saveMyPoint = saveMyPoint;
+window.ratePoint = ratePoint;
+window.deletePoint = deletePoint;
 </script>
 <script>
     
@@ -263,11 +271,16 @@ async function loadPoints(){
     const userPoints = [];
 
 
-    snapshot.forEach(doc=>{
+    snapshot.forEach(docSnap=>{
 
-        userPoints.push(
-            doc.data()
-        );
+    userPoints.push({
+
+        id: docSnap.id,
+
+        ...docSnap.data()
+
+    });
+
 
     });
 
@@ -284,7 +297,35 @@ async function loadPoints(){
     drawMarkers(pointData);
 
 }
+async function ratePoint(docId, score){
 
+    const ref = doc(window.db, "points", docId);
+
+    await updateDoc(ref, {
+
+        rating: increment(score),
+        ratingCount: increment(1)
+
+    });
+
+    alert("평가 완료");
+
+}
+async function deletePoint(docId){
+
+    if(!confirm("삭제하시겠습니까?")){
+        return;
+    }
+
+    await deleteDoc(
+        doc(window.db, "points", docId)
+    );
+
+    alert("삭제 완료");
+
+    location.reload();
+
+}
 function getDistance(lat1, lng1, lat2, lng2){
 
     const R = 6371;
@@ -383,8 +424,17 @@ const infoWindow = new naver.maps.InfoWindow({
             지역 : ${point.region}<br>
             주소 : ${point.address}<br>
             유형 : ${point.type}<br>
-            채비 : ${point.rig}<br><br>
+            채비 : ${point.rig}<br>
+            평점 :  ${((point.rating || 0)/(point.ratingCount || 1)).toFixed(1)}⭐
 
+<button onclick="ratePoint('${point.id}',5)">
+★★★★★
+</button>
+
+<br><br>
+<button onclick="deletePoint('${point.id}')">
+삭제
+</button>
             <a href="${naviUrl}"
                style="
                     display:inline-block;
