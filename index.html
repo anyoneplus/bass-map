@@ -103,7 +103,7 @@
 <div id="map" style="width:100%;height:100vh;"></div>
 <div id="save">
    <button onclick="saveMyPoint()">현위치 등록</button>
-   <button onclick="saveMyPoint()">지도에서<br>등록</button>
+   <button onclick="saveMapPoint()">지도에서<br>등록</button>
 </div>
 <script type="module">
  
@@ -111,7 +111,8 @@
   import {
     getFirestore,
     collection,
-    addDoc
+    addDoc,
+    getDocs
 }
 from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
@@ -174,6 +175,7 @@ from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 window.db = db;
 window.collection = collection;
 window.addDoc = addDoc;
+window.getDocs = getDocs;
 window.saveMyPoint = saveMyPoint;
 </script>
 <script>
@@ -239,15 +241,49 @@ naver.maps.Event.addListener(map, 'click', function(e){
 });
 
 
-fetch("./points.json")
-.then(res => res.json())
-.then(data => {
+loadPoints();
 
-    pointData = data;
+async function loadPoints(){
+
+    // 기존 json
+    const res =
+        await fetch("./points.json");
+
+    const localPoints =
+        await res.json();
+
+
+    // firebase
+    const snapshot =
+        await getDocs(
+            collection(db, "points")
+        );
+
+
+    const userPoints = [];
+
+
+    snapshot.forEach(doc=>{
+
+        userPoints.push(
+            doc.data()
+        );
+
+    });
+
+
+    pointData = [
+
+        ...localPoints,
+
+        ...userPoints
+
+    ];
+
 
     drawMarkers(pointData);
 
-});
+}
 
 function getDistance(lat1, lng1, lat2, lng2){
 
